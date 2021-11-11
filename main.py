@@ -45,6 +45,8 @@ def post_maps(map_tweets=None):
     # Reverse the order of the tweets from earliest to latest:
     for mt in reversed(map_tweets):
       data = {
+        "username": "Alpha Reactor Locator",
+        #"avatar_url": "https://cdn.discordapp.com/avatars/860982741806088232/2eefbe56d88fa45c7234f7f7a75359f5.png",
         "content": None,
         "embeds": [mt]
       }
@@ -101,8 +103,8 @@ def main():
           "color": 16294421,
           "author": None,
           "footer": {
-            "text": "Tweet created last " + created_at.strftime('%d %B %Y %H:%M'),
-            "icon_url": "https://images-ext-2.discordapp.net/external/7MOaFXHz8bM42aaNcsmATUh2u0CBwwTHnHBfBs1z7tQ/https/cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png"
+            "text": "Tweet created last " + created_at.strftime('%Y-%m-%d %H:%M'),
+            #"icon_url": "https://images-ext-2.discordapp.net/external/7MOaFXHz8bM42aaNcsmATUh2u0CBwwTHnHBfBs1z7tQ/https/cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png"
           },
           "image": None
         }
@@ -137,6 +139,7 @@ def main():
       config.write(configfile)
 
     if len(map_tweets):
+      # We have possible tweets of the map, let's post them:
       post_maps(map_tweets)
     else:
       print("No possible alpha reactor map found. Exiting...")
