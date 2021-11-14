@@ -45,11 +45,14 @@ def post_maps(map_tweets=None):
     # Reverse the order of the tweets from earliest to latest:
     for mt in reversed(map_tweets):
       data = {
-        "username": "Alpha Reactor Locator",
         #"avatar_url": "https://cdn.discordapp.com/avatars/860982741806088232/2eefbe56d88fa45c7234f7f7a75359f5.png",
         "content": None,
         "embeds": [mt]
       }
+
+      username = config["Settings"]["display_username"].strip()
+      if len(username):
+        data["username"] = username
 
       # Post map:
       webhook_url = config["Discord"]["webhook_url"] + '?wait=1'
@@ -114,7 +117,7 @@ def main():
           user = user_map[d["author_id"]]
           embed_data["title"] = user["name"]
           embed_data["url"] = "https://twitter.com/{username}/status/{tweet_id}".format(username=user["username"], tweet_id=d["id"])
-          embed_data["author_id"] = {
+          embed_data["author"] = {
             "name": user["username"],
             "icon_url": user["profile_image_url"]
           }
