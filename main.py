@@ -55,9 +55,9 @@ def post_maps(map_tweets=None):
         "embeds": [mt]
       }
 
+      # Set username:
       if not len(username):
         username = config["Settings"]["display_username"].strip()
-
       data["username"] = username
 
       # Post map:
