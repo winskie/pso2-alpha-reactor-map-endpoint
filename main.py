@@ -12,7 +12,9 @@ config.read("config.ini")
 
 def get_tweets(since_id=None):
   endpoint_url = "https://api.twitter.com/2/users/" + config["Twitter"]["user_id"] + "/tweets"
-  start_time = datetime.today() - timedelta(int(config["Settings"]["max_historical_days"]))
+  start_time = datetime.today()
+  start_time = start_time.replace(hour = 0, minute = 0, second = 0, microsecond = 0)
+  start_time = start_time - timedelta(days = int(config["Settings"]["max_historical_days"]) - 1)
   headers = {
       "Authorization": "Bearer " + config["Twitter"]["bearer_token"]
     }
@@ -41,13 +43,15 @@ def get_tweets(since_id=None):
 def post_maps(map_tweets=None):
 
   if map_tweets:
-    posted_ids = []
+    posted_ids = {}
     # Reverse the order of the tweets from earliest to latest:
     for mt in reversed(map_tweets):
 
       # Get extra information and remove from embed data:
       username = mt["username"]
+      type = mt["type"]
       del mt["username"]
+      del mt["type"]
 
       data = {
         #"avatar_url": "https://cdn.discordapp.com/avatars/860982741806088232/2eefbe56d88fa45c7234f7f7a75359f5.png",
@@ -66,19 +70,22 @@ def post_maps(map_tweets=None):
       
       if response.status_code == 200:
         data = response.json()
-        posted_ids.append(data["id"])
+        if type not in posted_ids:
+          posted_ids[type] = [] 
+        posted_ids[type].append(data["id"])
 
     # Delete previous posted tweets:
     delete_url = config["Discord"]["webhook_url"] + "/messages/"
-    previous_posted_ids = config["Settings"]["last_posted_id"].split(",")
-    if len(previous_posted_ids):
-      for id in previous_posted_ids:
-        requests.delete(delete_url + id)
+    for key, value in posted_ids.items():
+      previous_posted_ids = config["Settings"]["last_" + key + "_posted_id"].split(",")
+      if len(previous_posted_ids):
+        for id in previous_posted_ids:
+          requests.delete(delete_url + id)
 
-    # Write settings:
-    config["Settings"]["last_posted_id"] = ",".join(posted_ids)
-    with open("config.ini", "w") as configfile:
-      config.write(configfile)
+      # Write settings:
+      config["Settings"]["last_" + key + "_posted_id"] = ",".join(value)
+      with open("config.ini", "w") as configfile:
+        config.write(configfile)
 
 
 def main():
@@ -125,7 +132,8 @@ def main():
           "image": None,
 
           # Extra information to be passed to post function:
-          "username": "Alpha Reactor Locator"
+          "username": "Alpha Reactor Locator",
+          "type": "alpha_reactor"
         }
 
         # Attach author information:
@@ -166,7 +174,8 @@ def main():
           "image": None,
 
           # Extra information to be passed to post function:
-          "username": "Photo Scale Locator"
+          "username": "Photon Scale Locator",
+          "type": "photon_scale"
         }
 
         # Attach author information:
