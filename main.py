@@ -44,15 +44,21 @@ def post_maps(map_tweets=None):
     posted_ids = []
     # Reverse the order of the tweets from earliest to latest:
     for mt in reversed(map_tweets):
+
+      # Get extra information and remove from embed data:
+      username = mt["username"]
+      del mt["username"]
+
       data = {
         #"avatar_url": "https://cdn.discordapp.com/avatars/860982741806088232/2eefbe56d88fa45c7234f7f7a75359f5.png",
         "content": None,
         "embeds": [mt]
       }
 
-      username = config["Settings"]["display_username"].strip()
-      if len(username):
-        data["username"] = username
+      if not len(username):
+        username = config["Settings"]["display_username"].strip()
+
+      data["username"] = username
 
       # Post map:
       webhook_url = config["Discord"]["webhook_url"] + '?wait=1'
@@ -95,7 +101,14 @@ def main():
       for u in response["includes"]["users"]:
         user_map[u["id"]] = u
 
+    # Substrings to look for:
+    substring_list = [
+      "#AlphaReactors #アルファリアクター #PSO2NGS",
+      "#PSO2NGS #PhotonScales #フォトンスケイル"
+    ]
+
     for d in response["data"]:
+      # Alpha Reactor Location Map:
       if d["text"].find("#AlphaReactors #アルファリアクター #PSO2NGS") >= 0:
         # We have a possible alpha reactor map tweet:
         created_at = datetime.strptime(d['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ")
@@ -106,10 +119,13 @@ def main():
           "color": 16294421,
           "author": None,
           "footer": {
-            "text": "Tweet created last " + created_at.strftime('%Y-%m-%d %H:%M'),
+            "text": "Tweet created last " + created_at.strftime('%Y-%m-%d %H:%M') + " UTC",
             #"icon_url": "https://images-ext-2.discordapp.net/external/7MOaFXHz8bM42aaNcsmATUh2u0CBwwTHnHBfBs1z7tQ/https/cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png"
           },
-          "image": None
+          "image": None,
+
+          # Extra information to be passed to post function:
+          "username": "Alpha Reactor Locator"
         }
 
         # Attach author information:
@@ -118,7 +134,48 @@ def main():
           embed_data["title"] = user["name"]
           embed_data["url"] = "https://twitter.com/{username}/status/{tweet_id}".format(username=user["username"], tweet_id=d["id"])
           embed_data["author"] = {
-            "name": user["username"],
+            "name": user["username"] + " - Alpha Reactor Location Map",
+            "icon_url": user["profile_image_url"]
+          }
+
+        # Attach image:
+        if "attachments" in d:
+          for m in d["attachments"]["media_keys"]:
+            if m in media_map:
+              embed_data["image"] = {
+                "url": media_map[m]["url"]
+              }
+              break
+        
+        map_tweets.append(embed_data)
+
+      # Photon Scale Location Map:
+      elif d["text"].find("#PSO2NGS #PhotonScales #フォトンスケイル") >= 0:
+        # We have a possible alpha reactor map tweet:
+        created_at = datetime.strptime(d['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ")
+        embed_data = {
+          "id": d["id"],
+          "title": None,
+          "description": d["text"],
+          "color": 1299449,
+          "author": None,
+          "footer": {
+            "text": "Tweet created last " + created_at.strftime('%Y-%m-%d %H:%M') + " UTC",
+            #"icon_url": "https://images-ext-2.discordapp.net/external/7MOaFXHz8bM42aaNcsmATUh2u0CBwwTHnHBfBs1z7tQ/https/cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png"
+          },
+          "image": None,
+
+          # Extra information to be passed to post function:
+          "username": "Photo Scale Locator"
+        }
+
+        # Attach author information:
+        if d["author_id"] in user_map:
+          user = user_map[d["author_id"]]
+          embed_data["title"] = user["name"]
+          embed_data["url"] = "https://twitter.com/{username}/status/{tweet_id}".format(username=user["username"], tweet_id=d["id"])
+          embed_data["author"] = {
+            "name": user["username"] + " - Photon Scale Location Map",
             "icon_url": user["profile_image_url"]
           }
 
