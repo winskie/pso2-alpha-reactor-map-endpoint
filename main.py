@@ -110,13 +110,15 @@ def main():
 
     # Substrings to look for:
     substring_list = [
-      "#AlphaReactors #アルファリアクター #PSO2NGS",
-      "#PSO2NGS #PhotonScales #フォトンスケイル"
+      #"#AlphaReactors #アルファリアクター #PSO2NGS",
+      #"#PSO2NGS #PhotonScales #フォトンスケイル"
+      "#AlphaReactors #NGS #PSO2NGS #アルファリアクター",
+      "#InvisbleBoxNGS #NGS #PSO2NGS"
     ]
 
     for d in response["data"]:
       # Alpha Reactor Location Map:
-      if d["text"].find("#AlphaReactors #アルファリアクター #PSO2NGS") >= 0:
+      if d["text"].find("#AlphaReactors #NGS #PSO2NGS #アルファリアクター") >= 0:
         # We have a possible alpha reactor map tweet:
         created_at = datetime.strptime(d['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ")
         embed_data = {
@@ -157,9 +159,9 @@ def main():
         
         map_tweets.append(embed_data)
 
-      # Photon Scale Location Map:
-      elif d["text"].find("#PSO2NGS #PhotonScales #フォトンスケイル") >= 0:
-        # We have a possible alpha reactor map tweet:
+      # Invisible Box Location Map:
+      elif d["text"].find("#InvisbleBoxNGS #NGS #PSO2NGS") >= 0:
+        # We have a possible invisible boxes map tweet:
         created_at = datetime.strptime(d['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ")
         embed_data = {
           "id": d["id"],
@@ -174,8 +176,8 @@ def main():
           "image": None,
 
           # Extra information to be passed to post function:
-          "username": "Photon Scale Locator",
-          "type": "photon_scale"
+          "username": "Invisible Boxes Locator",
+          "type": "invisible_box"
         }
 
         # Attach author information:
@@ -184,7 +186,7 @@ def main():
           embed_data["title"] = user["name"]
           embed_data["url"] = "https://twitter.com/{username}/status/{tweet_id}".format(username=user["username"], tweet_id=d["id"])
           embed_data["author"] = {
-            "name": user["username"] + " - Photon Scale Location Map",
+            "name": user["username"] + " - Invisible Boxes Location Map",
             "icon_url": user["profile_image_url"]
           }
 
