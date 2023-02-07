@@ -92,7 +92,6 @@ def main():
   # Get alpha reactor map tweets starting from last known posted tweet ID:
   map_tweets = []
   response = get_tweets(config["Settings"]["last_checked_id"])
-  print(response)
   last_checked_id = config["Settings"]["last_checked_id"]
 
   if "data" in response:
