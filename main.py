@@ -92,6 +92,7 @@ def main():
   # Get alpha reactor map tweets starting from last known posted tweet ID:
   map_tweets = []
   response = get_tweets(config["Settings"]["last_checked_id"])
+  print(response)
   last_checked_id = config["Settings"]["last_checked_id"]
 
   if "data" in response:
@@ -110,32 +111,33 @@ def main():
 
     # Substrings to look for:
     substring_list = [
-      #"#AlphaReactors #アルファリアクター #PSO2NGS",
-      #"#PSO2NGS #PhotonScales #フォトンスケイル"
-      "#AlphaReactors #NGS #PSO2NGS #アルファリアクター",
-      "#InvisbleBoxNGS #NGS #PSO2NGS"
+      "#AlphaReactors",
+      "#アルファリアクター",
+      "#InvisbleBoxNGS",
+      "#GoldCrateNGS"
     ]
 
     for d in response["data"]:
       # Alpha Reactor Location Map:
-      if d["text"].find("#AlphaReactors #NGS #PSO2NGS #アルファリアクター") >= 0:
-        # We have a possible alpha reactor map tweet:
+      if any(needle in d["text"] for needle in substring_list):
+        # We have a possible resource map tweet:
         created_at = datetime.strptime(d['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ")
         embed_data = {
           "id": d["id"],
           "title": None,
           "description": d["text"],
+          "timestamp": created_at.isoformat(),
           "color": 16294421,
           "author": None,
           "footer": {
-            "text": "Tweet created last " + created_at.strftime('%Y-%m-%d %H:%M') + " UTC",
+            "text": "Tweet created",
             #"icon_url": "https://images-ext-2.discordapp.net/external/7MOaFXHz8bM42aaNcsmATUh2u0CBwwTHnHBfBs1z7tQ/https/cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png"
           },
           "image": None,
 
           # Extra information to be passed to post function:
-          "username": "Alpha Reactor Locator",
-          "type": "alpha_reactor"
+          "username": "Resource Locator",
+          "type": "resource_map"
         }
 
         # Attach author information:
@@ -144,49 +146,7 @@ def main():
           embed_data["title"] = user["name"]
           embed_data["url"] = "https://twitter.com/{username}/status/{tweet_id}".format(username=user["username"], tweet_id=d["id"])
           embed_data["author"] = {
-            "name": user["username"] + " - Alpha Reactor Location Map",
-            "icon_url": user["profile_image_url"]
-          }
-
-        # Attach image:
-        if "attachments" in d:
-          for m in d["attachments"]["media_keys"]:
-            if m in media_map:
-              embed_data["image"] = {
-                "url": media_map[m]["url"]
-              }
-              break
-        
-        map_tweets.append(embed_data)
-
-      # Invisible Box Location Map:
-      elif d["text"].find("#InvisbleBoxNGS #NGS #PSO2NGS") >= 0:
-        # We have a possible invisible boxes map tweet:
-        created_at = datetime.strptime(d['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ")
-        embed_data = {
-          "id": d["id"],
-          "title": None,
-          "description": d["text"],
-          "color": 1299449,
-          "author": None,
-          "footer": {
-            "text": "Tweet created last " + created_at.strftime('%Y-%m-%d %H:%M') + " UTC",
-            #"icon_url": "https://images-ext-2.discordapp.net/external/7MOaFXHz8bM42aaNcsmATUh2u0CBwwTHnHBfBs1z7tQ/https/cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png"
-          },
-          "image": None,
-
-          # Extra information to be passed to post function:
-          "username": "Invisible Boxes Locator",
-          "type": "invisible_box"
-        }
-
-        # Attach author information:
-        if d["author_id"] in user_map:
-          user = user_map[d["author_id"]]
-          embed_data["title"] = user["name"]
-          embed_data["url"] = "https://twitter.com/{username}/status/{tweet_id}".format(username=user["username"], tweet_id=d["id"])
-          embed_data["author"] = {
-            "name": user["username"] + " - Invisible Boxes Location Map",
+            "name": user["username"] + " - Resource Maps",
             "icon_url": user["profile_image_url"]
           }
 
